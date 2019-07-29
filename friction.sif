@@ -1,0 +1,166 @@
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "."
+  Include Path ""
+  Results Directory ""
+End
+
+Simulation
+  Max Output Level = 5
+  Coordinate System = Cartesian
+  Coordinate Mapping(3) = 1 2 3
+  Simulation Type = Transient
+  Steady State Max Iterations = 1
+  Output Intervals = 1
+  Timestepping Method = BDF
+  BDF Order = 1
+  Timestep intervals = 20
+  Timestep Sizes = .0001
+  Solver Input File = case.sif
+  Post File = case.vtu
+End
+
+Constants
+  Gravity(4) = 0 -1 0 9.82
+  Stefan Boltzmann = 5.67e-08
+  Permittivity of Vacuum = 8.8542e-12
+  Boltzmann Constant = 1.3807e-23
+  Unit Charge = 1.602e-19
+End
+
+Body 1
+  Target Bodies(1) = 2
+  Name = "Body 1"
+  Equation = 1
+  Material = 1
+End
+
+Body 2
+  Target Bodies(1) = 1
+  Name = "Body 2"
+  Equation = 1
+  Material = 1
+End
+
+Solver 1
+  Equation = Linear elasticity
+  Procedure = "StressSolve" "StressSolver"
+  Calculate Loads = Logical True
+  Displace mesh = False
+  Variable = -dofs 3 Displacement
+  Exec Solver = Always
+  Stabilize = True
+  Bubbles = False
+  Lumped Mass Matrix = False
+  Optimize Bandwidth = True
+  Steady State Convergence Tolerance = 1.0e-5
+  Nonlinear System Convergence Tolerance = 1.0e-8
+  Nonlinear System Max Iterations = 20
+  Nonlinear System Newton After Iterations = 3
+  Nonlinear System Newton After Tolerance = 1.0e-3
+  Nonlinear System Relaxation Factor = 1
+  Linear System Solver = Iterative
+  Linear System Iterative Method = BiCGStab
+  Linear System Max Iterations = 500
+  Linear System Convergence Tolerance = 1.0e-11
+  BiCGstabl polynomial degree = 2
+  Linear System Preconditioning = ILU1
+  Linear System ILUT Tolerance = 1.0e-3
+  Linear System Abort Not Converged = False
+  Linear System Residual Output = 10
+  Linear System Precondition Recompute = 1
+
+  Apply Contact BCs = Logical True
+
+End
+
+Equation 1
+  Name = "Equation 1"
+  Active Solvers(1) = 1
+End
+
+Material 1
+  Name = "Austenitic stainless steel (AK Steel 201)"
+  Heat Capacity = 500.0
+  Youngs modulus = 197.0e9
+  Density = 7810.0
+  Poisson ratio = 0.3
+  Poisson ratio = 0.3
+  Youngs modulus = 197.0e9
+  Heat Conductivity = 16.2
+  Poisson ratio = 0.3
+  Youngs modulus = 197.0e9
+  Poisson ratio = 0.3
+  Youngs modulus = 197.0e9
+  Heat expansion Coefficient = 15.7e-6
+  Mesh Poisson ratio = 0.3
+End
+
+Boundary Condition 1
+  Target Boundaries(5) = 5 3 1 11 9 
+  Name = "lower block fixed"
+  Displacement 3 = 0
+  Displacement 2 = 0
+  Displacement 1 = 0
+End
+
+Boundary Condition 2
+  Target Boundaries(1) = 7 
+  Name = "upper block normal"
+  Displacement 2 = 0
+  Normal Force = Real -100000.0
+End
+
+Boundary Condition 3
+Target Boundaries(1) = 12
+Force 1 = 300000.
+Displacement 2 = 0
+end
+
+!_________________________ SLAVES & MASTERS__________________________
+!Cube Bottom (Slave)
+Boundary Condition 4
+Name = "Contact1"
+Target Boundaries(1) = 8
+
+Mortar BC(1) = 5
+Mortar BC Displacement = Logical True
+Mortar BC Nonlinear = Logical True
+!Mortar BC Initial Contact Depth = Real 1.0e-4
+
+!Contact Depth Offset = Real 1.0e-4
+
+Friction Contact = Logical True
+Stick Contact Global = Logical True
+Initial Contact Friction = Logical True
+Static Friction Coefficient = Real 0.003
+Dynamic Friction Coefficient = Real 0.002
+
+!Contact Active Set Minimum = Integer 1
+Contact Active Condition = Real 1.0
+
+Create Dual Projector = Logical True
+
+! Flatten the interfaces to enable 1D projection
+Plane Projector = Logical True
+Galerkin Projector = Logical True
+
+! Use N-T conditions which allow friction for generic cases be set
+Normal-Tangential Displacement = Logical True
+Mass Consistent Normals = Logical True
+Normal-Tangential Velocity Rotate = Logical False
+
+Use Biorthogonal Basis = Logical True
+Save Contact = Logical True
+
+End
+
+!Cube lower side (Master)
+Boundary Condition 5
+Name = "BaseTop"
+Target Boundaries(1) = 4
+  Displacement 3 = 0
+  Displacement 2 = 0
+  Displacement 1 = 0
+End
+
